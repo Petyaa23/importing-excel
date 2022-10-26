@@ -2,30 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Car;
-
+use App\Imports\ImportCars;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\Request;
-
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Models\Car;
 
 class DashboardController extends Controller
 {
-    public function index ()
-    {
 
+    /**
+     * @return Factory|View|Application
+     */
+    public function index (): Factory|View|Application
+    {
         $cars = Car::all();
         return view('dashboard.dashboard')->with(compact('cars'));
-
     }
 
-    public function getCars(Request $request)
+    public function getCars(Request $request): RedirectResponse
     {
-
-        return response()->json(['cars' => $cars]);
+        Excel::import(new ImportCars, $request->file('file')->store('files'));
+        return redirect()->back();
     }
-
-
-
 }
