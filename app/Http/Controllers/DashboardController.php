@@ -19,7 +19,7 @@ class DashboardController extends Controller
      */
     public function index (): Factory|View|Application
     {
-        $cars = Car::paginate(7);
+        $cars = Car::orderBy('id', 'DESC')->paginate(5);
         return view('dashboard.dashboard')->with(compact('cars'));
     }
 

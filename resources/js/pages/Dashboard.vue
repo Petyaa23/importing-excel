@@ -15,7 +15,7 @@
             </div>
         </div>
     </div>
-
+    <div v-if="Object.values(cars).length">
     <table class="rounded-t-lg m-5 w-5/6 mx-auto bg-gray-800 text-gray-200">
         <tr class="text-left border-b border-gray-300">
             <th class="px-4 py-3">Name</th>
@@ -52,6 +52,10 @@
             </template>
         </div>
     </div>
+    </div>
+        <div v-else>
+            Loading...
+        </div>
 </template>
 
 <script>
@@ -64,14 +68,36 @@ export default {
 
     data() {
         return {
-            exelFile: {}
+            exelFile: {},
+            // cars: {}
         }
     },
 
     methods: {
+        carsAdd(item) {
+            if (this.cars.current_page === 1 ) {
+                this.cars.data.unshift(item);
+            }
+            if(this.cars.data.length > 5) {
+                this.cars.data.pop();
+            }
+            this.cars.total++;
+            const perPage = Math.ceil(this.cars.total / 5);
+
+            if (perPage > (this.cars.links.length - 2)) {
+                const carsLink = {
+                    url: window.location.origin + '/get-cars?page=' + perPage,
+                    label: perPage,
+                    active: false
+                };
+                this.cars.links.splice(this.cars.links.length - 1, 0, carsLink);
+            }
+        },
+
         onFileChange() {
             this.exelFile = event.target.files[0];
         },
+
         getCars() {
             const config = {
                 header: {"content_type": "multipart/form-data"}
@@ -79,16 +105,14 @@ export default {
             let formData = new FormData();
             formData.append('file', this.exelFile);
             axios.post('/get-cars', formData)
-                .then(function (response) {
-                })
+                .then(response => {
+                this.carsAdd(response.data.cars);
+            })
                 .catch(function (error) {
                     console.log(1111);
                 });
-        }
-
-    }
-
-
+        },
+    },
 }
 </script>
 

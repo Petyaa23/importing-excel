@@ -1,56 +1,35 @@
 <?php
 
-//namespace App\Imports;
-//use App\Models\Car;
-//use Maatwebsite\Excel\Concerns\ToModel;
 namespace App\Imports;
-
 use App\Models\Car;
 
-
-use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\WithValidation;
 
-//class ImportCars implements ToModel
-//{
-//
-//    public function model(array $row): Car
-//    {
-//        return new Car([
-//            'name' => $row[0],
-//            'model' => $row[1],
-//            'color' => $row[2],
-//            'year' => $row[3],
-//            'price' => $row[4],
-//        ]);
-//    }
-//}
-class ImportCars implements ToModel
+class ImportCars implements ToModel, WithValidation
 {
 
-    public function model(array $row): string | Car
+    public function model(array $row)
     {
-        $arr = [
-            'name' => $row[0],
-            'model' => $row[1],
-            'color' => $row[2],
-            'year' => $row[3],
-            'price' => $row[4],
+        return new Car (
+            [
+                'name' => $row[0],
+                'model' => $row[1],
+                'color' => $row[2],
+                'year' => $row[3],
+                'price' => $row[4],
+            ]
+        );
+    }
+
+    public function rules(): array
+    {
+        return [
+            '0' => 'required',
+            '1' => 'required',
+            '2' => 'required',
+            '3' => 'required',
+            '4' => 'required',
         ];
-
-        $validator = Validator::make($arr, [
-
-            'name' => 'required',
-            'model' => 'required',
-            'color' => 'required',
-            'year' => 'required',
-            'price' => 'required',
-
-        ]);
-        $message = $validator->messages()->first();
-        if (!$validator->fails()) {
-            return new Car($arr);
-        }
-        return $message;
     }
 }
