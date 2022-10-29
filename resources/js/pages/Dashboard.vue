@@ -63,13 +63,12 @@ export default {
     name: "Dashboard",
 
     props: [
-      'cars'
+      'cars',
     ],
 
     data() {
         return {
             exelFile: {},
-            // cars: {}
         }
     },
 
@@ -106,6 +105,7 @@ export default {
             formData.append('file', this.exelFile);
             axios.post('/get-cars', formData)
                 .then(response => {
+                    location.reload()
                 this.carsAdd(response.data.cars);
             })
                 .catch(function (error) {
