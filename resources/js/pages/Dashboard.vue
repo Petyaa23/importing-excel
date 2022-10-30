@@ -105,7 +105,7 @@ export default {
             formData.append('file', this.exelFile);
             axios.post('/get-cars', formData)
                 .then(response => {
-                    location.reload()
+                    // location.reload()
                 this.carsAdd(response.data.cars);
             })
                 .catch(function (error) {

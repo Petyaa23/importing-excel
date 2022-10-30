@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Imports\ImportCars;
+use http\Message;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -26,6 +27,11 @@ class DashboardController extends Controller
     {
         Excel::import(new ImportCars, $request->file('file')->store('files'));
         $cars = Car::orderBy('id', 'DESC')->paginate(5);
-        return response()->json(['cars' => $cars]);
+
+        return response()->json( [
+            'message' => '',
+            'status' => 'success',
+            'cars' => $cars
+        ]);
     }
 }
