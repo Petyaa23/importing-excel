@@ -10,7 +10,7 @@
             <div class="form-group">
                 <button
                     class="px-3 py-2 mt-2 bg-gray-400 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-black hover:shadow-lg focus:bg-gray-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-700 active:shadow-lg transition duration-150 ease-in-out"
-                    @click="getCars">SUBMIT
+                    type="submit" @click="carsAdd" >SUBMIT
                 </button>
             </div>
         </div>
@@ -64,16 +64,18 @@ export default {
 
     props: [
       'cars',
+        'session'
     ],
 
     data() {
         return {
             exelFile: {},
+            // carss: [],
         }
     },
 
     methods: {
-        carsAdd(item) {
+        getCars(item) {
             if (this.cars.current_page === 1 ) {
                 this.cars.data.unshift(item);
             }
@@ -85,7 +87,7 @@ export default {
 
             if (perPage > (this.cars.links.length - 2)) {
                 const carsLink = {
-                    url: window.location.origin + '/get-cars?page=' + perPage,
+                    url: window.location.origin + '/cars-add?page=' + perPage,
                     label: perPage,
                     active: false
                 };
@@ -97,20 +99,21 @@ export default {
             this.exelFile = event.target.files[0];
         },
 
-        getCars() {
+        carsAdd() {
             const config = {
                 header: {"content_type": "multipart/form-data"}
             }
             let formData = new FormData();
             formData.append('file', this.exelFile);
-            axios.post('/get-cars', formData)
+            axios.post('/cars-add', formData)
                 .then(response => {
                     // location.reload()
-                this.carsAdd(response.data.cars);
+                this.getCars(response.data.cars);
             })
                 .catch(function (error) {
                     console.log(1111);
                 });
+            console.log(this.session);
         },
     },
 }

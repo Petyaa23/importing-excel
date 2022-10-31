@@ -21,4 +21,4 @@ Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
-Route::post('get-cars', [App\Http\Controllers\DashboardController::class, 'getCars'])->name('get.cars');
+Route::post('cars-add', [App\Http\Controllers\DashboardController::class, 'carsAdd'])->name('cars.add');
