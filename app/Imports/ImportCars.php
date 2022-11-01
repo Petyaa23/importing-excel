@@ -26,16 +26,29 @@ class ImportCars implements ToModel, WithValidation
     public function rules(): array
     {
         return [
-            '0' => 'required',
-            '1' => 'required',
-            '2' => 'required',
-            '4' => 'required',
+            '0' => '',
+            '1' => '',
+            '2' => '',
+            '4' => '',
 
             '3' => function($attribute, $value) {
-                if (!$value)
-                    Session::flash('key', 'This is a message!');
+                if (!$value) {
+                    Session::put('key', 'This is a message!');
+                }
+
             }
         ];
     }
 
 }
+//return [
+//    'name' => '',
+//    'model' => '',
+//    'color' => '',
+//
+//    'year' => function($attribute, $value) {
+//        if (!$value)
+//            Session::flash('key', 'This is a message!');
+//    },
+//    'price' => '',
+//];
