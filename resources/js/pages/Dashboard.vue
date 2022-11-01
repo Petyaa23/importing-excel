@@ -10,13 +10,23 @@
                        ref="file"
                        @change="onFileChange">
                 <div class="form-group">
+
                     <div>
                         <span v-if="fileError" class="text-red-400 error-span" >{{ errorMessage }}</span>
                     </div>
                     <button
-                        class="px-3 py-2 mt-2 bg-gray-400 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-black hover:shadow-lg focus:bg-gray-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-700 active:shadow-lg transition duration-150 ease-in-out"
-                        type="submit" @click="carsAdd" >SUBMIT
+                        class="px-3 py-2 mt-2 bg-gray-400 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-black
+                        hover:shadow-lg focus:bg-gray-700 focus:shadow-lg focus:outline-none focus:ring-0
+                        active:bg-gray-700 active:shadow-lg transition duration-150 ease-in-out"
+                        type="submit"
+                        ref="submit"
+                        @click="carsAdd" >SUBMIT
+                        <div>
+                            <span v-if="fileErrors" class="text-red-400 error-span" >{{ errorMessages }}</span>
+                        </div>
                     </button>
+
+
                 </div>
             </div>
         </div>
@@ -47,13 +57,13 @@
                     class="text-white mr-1 mb-1 px-2 py-1 text-sm leading-4 border rounded hover:bg-black focus:border-primary focus:text-primary text-decoration-none bg-gray-400"
                     v-html="link.label"
                 />
-                <a
+                <button
                     v-else
                     class="text-white mr-1 mb-1 px-2 py-1 text-sm leading-4 border rounded hover:bg-black focus:border-primary focus:text-primary text-decoration-none bg-gray-400"
                     :class="{ 'bg-gray-600 text-white': link.active }"
-                    :href="link.url"
+                    @click="carsGet(link.url)"
                     v-html="link.label"
-                ></a>
+                ></button>
             </template>
         </div>
     </div>
@@ -68,7 +78,6 @@
 
 export default {
     name: "Dashboard",
-
     // props: [
     //   'cars'
     // ],
@@ -78,6 +87,8 @@ export default {
             excelFile: {},
             fileError: false,
             errorMessage: '',
+            fileErrors: false,
+            errorMessages: '',
             cars: {},
         }
     },
@@ -109,13 +120,18 @@ export default {
             });
         },
 
+        // onFileChanges() {
+        //     let submitFile = this.$refs.submit[0];
+        //     if (submitFile !== null) {
+        //         this.errorMessages = "No file selected";
+        //         this.fileErrors = true;
+        //         return false;
+        //     }
+        // },
+
         onFileChange() {
             let exelFile = this.$refs.file.files[0];
             this.excelFile = event.target.files[0];
-            if (this.$refs.file.files.length < 1) {
-                console.log("No file selected");
-                return false;
-            }
 
             let extension = exelFile.name.split('.').pop();
             if (extension !== 'xlsx') {
@@ -133,16 +149,11 @@ export default {
             axios.post('/cars-add', formData)
                 .then(response => {
                     console.log(response.data.message);
-                    // location.reload()
                     this.carsGet();
-                // this.cars.push(response.data.files);
             })
                 .catch(function (error) {
                     console.log(1111);
                 });
-
-
-
         },
     },
     created() {
