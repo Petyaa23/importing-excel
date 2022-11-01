@@ -1,33 +1,25 @@
 <template>
-    <h1 class="text-center font-bold">Cars-table</h1>
-    <div class="flex justify-center">
-        <div class=" w-96">
-            <label for="formFile" class="form-label inline-block mb-2 text-gray-700">Exel file input</label>
-            <Form :validation-schema="schema" v-slot="{ errors }" @submit="carsAdd">
-
-                <Field class="form-control block w-full px-3 py-1.5 ext-base font-normal text-gray-700 bg-white bg-clip-padding
-            border border-solid border-gray-300 rounded transition
-            ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
-                   @change="onFileChange"
+        <h1 class="text-center font-bold">Cars-table</h1>
+        <div class="flex justify-center">
+            <div class=" w-96">
+                <label for="formFile" class="form-label inline-block mb-2 text-gray-700">Excel file input</label>
+                <input class="form-control block w-full px-3 py-1.5 ext-base font-normal text-gray-700 bg-white bg-clip-padding
+            border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
                        type="file"
                        id="formFile"
-                       name="file">
-                </Field>
-                <div class="invalid-feedback">{{ errors.file }}</div>
-
-
-            <div class="form-group">
-                <button
-                    class="px-3 py-2 mt-2 bg-gray-400 text-white font-medium text-xs leading-tight
-                    uppercase rounded shadow-md hover:bg-black hover:shadow-lg focus:bg-gray-700 focus:shadow-lg
-                    focus:outline-none focus:ring-0 active:bg-gray-700 active:shadow-lg transition duration-150 ease-in-out"
-                    type="submit">SUBMIT
-                </button>
+                       ref="file"
+                       @change="onFileChange">
+                <div class="form-group">
+                    <div>
+                        <span v-if="fileError" class="text-red-400 error-span" >{{ errorMessage }}</span>
+                    </div>
+                    <button
+                        class="px-3 py-2 mt-2 bg-gray-400 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-black hover:shadow-lg focus:bg-gray-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-700 active:shadow-lg transition duration-150 ease-in-out"
+                        type="submit" @click="carsAdd" >SUBMIT
+                    </button>
+                </div>
             </div>
-
-            </Form>
         </div>
-    </div>
     <div v-if="Object.values(cars).length">
     <table class="rounded-t-lg m-5 w-5/6 mx-auto bg-gray-800 text-gray-200">
         <tr class="text-left border-b border-gray-300">
@@ -72,32 +64,22 @@
 </template>
 
 <script>
-import { Form, Field } from 'vee-validate';
-import * as yup from "yup";
+
 
 export default {
     name: "Dashboard",
-    components: {
-        Form,
-        Field,
-    },
 
-    props: [
-      'cars'
-    ],
+    // props: [
+    //   'cars'
+    // ],
 
     data() {
         return {
-            exelFile: {},
+            excelFile: {},
+            fileError: false,
+            errorMessage: '',
+            cars: {},
         }
-    },
-    computed: {
-        schema() {
-            return yup.object().shape({
-                file: yup.f()
-                    .required("File is required"),
-            });
-        },
     },
 
     methods: {
@@ -113,7 +95,7 @@ export default {
 
             if (perPage > (this.cars.links.length - 2)) {
                 const carsLink = {
-                    url: window.location.origin + '/cars-add?page=' + perPage,
+                    url: window.location.origin + '/get-cars?page=' + perPage,
                     label: perPage,
                     active: false
                 };
@@ -121,27 +103,51 @@ export default {
             }
         },
 
-        onFileChange() {
-            this.exelFile = event.target.files[0];
+        carsGet(link = null) {
+            axios.get(link ?? '/get-cars').then(res => {
+                this.cars = res.data.cars;
+            });
         },
 
+        onFileChange() {
+            let exelFile = this.$refs.file.files[0];
+            this.excelFile = event.target.files[0];
+            if (this.$refs.file.files.length < 1) {
+                console.log("No file selected");
+                return false;
+            }
+
+            let extension = exelFile.name.split('.').pop();
+            if (extension !== 'xlsx') {
+                this.errorMessage = 'Please you can upload file having extensions .xlsx only.';
+                this.fileError = true;
+                return false;
+            }
+        },
         carsAdd() {
             const config = {
                 header: {"content_type": "multipart/form-data"}
             }
             let formData = new FormData();
-            formData.append('file', this.exelFile);
+            formData.append('file', this.excelFile);
             axios.post('/cars-add', formData)
                 .then(response => {
                     console.log(response.data.message);
                     // location.reload()
-                this.getCars(response.data.cars);
+                    this.carsGet();
+                // this.cars.push(response.data.files);
             })
                 .catch(function (error) {
                     console.log(1111);
                 });
+
+
+
         },
     },
+    created() {
+        this.carsGet();
+    }
 }
 </script>
 
