@@ -26,16 +26,16 @@ class ImportCars implements ToModel, WithValidation
     public function rules(): array
     {
         $message = function($attribute, $value) {
-//            $rows = [];
-//            if (!$value) {
-//                foreach ($rows as $attribute) {
-//                    $rows.array_push()
-//
-//                }
-
-//
-                Session::put('key', "$attribute This is a message!");
-            };
+            if (!$value) {
+                if (Session::has('error')) {
+                    $error = Session::get('error');
+                    $error++;
+                    Session::put('error', $error);
+                } else {
+                    Session::put('error', 1);
+                }
+            }
+        };
 
         return [
             '0' => $message,
@@ -47,14 +47,4 @@ class ImportCars implements ToModel, WithValidation
     }
 
 }
-//return [
-//    'name' => '',
-//    'model' => '',
-//    'color' => '',
-//
-//    'year' => function($attribute, $value) {
-//        if (!$value)
-//            Session::flash('key', 'This is a message!');
-//    },
-//    'price' => '',
-//];
+

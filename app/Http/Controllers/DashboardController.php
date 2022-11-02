@@ -11,7 +11,7 @@ use App\Models\Car;
 class DashboardController extends Controller
 {
 
-    public function index ()
+    public function index()
     {
         $cars = Car::orderBy('id', 'DESC')->paginate(5);
         return view('dashboard.dashboard')->with(compact('cars'));
@@ -22,16 +22,18 @@ class DashboardController extends Controller
         $cars = Car::orderBy('id', 'DESC')->paginate(5);
         return response()
             ->json([
-                'cars'=> $cars]);
+                'cars' => $cars]);
     }
 
     public function carsAdd(Request $request)
     {
-        Excel::import(new ImportCars, $request->file('file')->store('files'));
+        $import = new ImportCars;
+        $res = Excel::import($import, $request->file('file')->store('files'));
+        dd($import->getFailedRowCount());
+        $session = Session::get('error');
 
-        $session = Session::get('key');
-        Session::forget('key');
-        return response()->json( [
+        Session::forget('error');
+        return response()->json([
             'message' => $session,
             'status' => 'success',
         ]);
