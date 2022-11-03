@@ -4,11 +4,11 @@
         <div class=" w-96">
             <label for="formFile" class="form-label inline-block mb-2 text-gray-700">Excel file input</label>
             <input class="form-control block w-full px-3 py-1.5 ext-base font-normal text-gray-700 bg-white bg-clip-padding
-                        border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                   border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
                    type="file"
                    id="formFile"
                    ref="file"
-                   @change="onFileChange()">
+                   @change="onFileChange">
             <div class="form-group">
                 <div>
                     <span v-if="fileError" class="text-red-400 error-span">{{ errorMessage }}</span>
@@ -16,16 +16,13 @@
 
                 <button
                     class="px-3 py-2 mt-2 bg-gray-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-black
-                        hover:shadow-lg focus:bg-gray-700 focus:shadow-lg focus:outline-none focus:ring-0
-                        active:bg-gray-700 active:shadow-lg transition duration-150 ease-in-out"
+                    hover:shadow-lg focus:bg-gray-700 focus:shadow-lg focus:outline-none focus:ring-0
+                    active:bg-gray-700 active:shadow-lg transition duration-150 ease-in-out"
                     type="submit"
                     ref="uploadFile"
                     @click="carsAdd">SUBMIT
                 </button>
-<!--                @change = "onFileChanges"-->
-<!--                <div>-->
-<!--                 <span v-if="fileErrors" class="text-red-400 error-span" >{{ errorMessages }}</span>-->
-<!--                 </div>-->
+
             </div>
         </div>
     </div>
@@ -38,7 +35,6 @@
                 <th class="px-4 py-3">Year</th>
                 <th class="px-4 py-3">Price</th>
             </tr>
-
             <tr v-for="car in cars.data" class="bg-gray-700 border-b border-gray-600">
                 <td class="px-4 py-3">{{ car.name }}</td>
                 <td class="px-4 py-3">{{ car.model }}</td>
@@ -46,50 +42,41 @@
                 <td class="px-4 py-3">{{ car.year }}</td>
                 <td class="px-4 py-3">{{ car.price }}</td>
             </tr>
-
         </table>
-        <div class="">
-            <div v-if="cars.links.length > 3">
-                <div class="flex mt-8">
-                    <template v-for="(link, key) in cars.links" :key="key">
-                        <div
-                            v-if="link.url === null"
-                            class="text-white mr-1 mb-1 px-2 py-1 text-sm leading-4 border rounded hover:bg-black focus:border-primary focus:text-primary text-decoration-none bg-gray-400"
-                            v-html="link.label"
-                        />
-                        <button
-                            v-else
-                            class="text-white mr-1 mb-1 px-2 py-1 text-sm leading-4 border rounded hover:bg-black focus:border-primary focus:text-primary text-decoration-none bg-gray-400"
-                            :class="{ 'bg-gray-600 text-white': link.active }"
-                            @click="carsGet(link.url)"
-                            v-html="link.label"
-                        ></button>
-                    </template>
-                </div>
+        <div class="d-flex justify-content-center">
+            <div v-if="cars.links.length > 3" class="flex mt-0">
+
+                <template v-for="(link, key) in cars.links" :key="key">
+                    <div
+                        v-if="link.url === null"
+                        class="text-white mr-1 mb-1 px-2 py-1 text-sm leading-4 border rounded hover:bg-black focus:border-primary focus:text-primary text-decoration-none bg-gray-400"
+                        v-html="link.label"
+                    />
+                    <button
+                        v-else
+                        class="text-white mr-1 mb-1 px-2 py-1 text-sm leading-4 border rounded hover:bg-black focus:border-primary focus:text-primary text-decoration-none bg-gray-400"
+                        :class="{ 'bg-gray-600 text-white': link.active }"
+                        @click="getCarsList(link.url)"
+                        v-html="link.label"
+                    ></button>
+                </template>
             </div>
         </div>
+
     </div>
     <div v-else>
         Loading...
     </div>
 </template>
-
 <script>
-
 
 export default {
     name: "Dashboard",
-    // props: [
-    //   'cars'
-    // ],
-
     data() {
         return {
             excelFile: {},
             fileError: false,
             errorMessage: '',
-            fileErrors: false,
-            errorMessages: '',
             cars: {},
         }
     },
@@ -115,20 +102,11 @@ export default {
             }
         },
 
-        carsGet(link = null) {
+        getCarsList(link = null) {
             axios.get(link ?? '/get-cars').then(res => {
                 this.cars = res.data.cars;
             });
         },
-
-        // onFileChanges() {
-        //     if (this.$refs.uploadFile.files.length < 1) {
-        //         console.log(77777)
-        //         this.errorMessages = "No file selected";
-        //         this.fileErrors = true;
-        //         return false;
-        //     }
-        // },
 
         onFileChange() {
             let exelFile = this.$refs.file.files[0];
@@ -150,17 +128,21 @@ export default {
             formData.append('file', this.excelFile);
             axios.post('/cars-add', formData)
                 .then(response => {
-                    console.log(response.data.message);
-                    this.carsGet();
+                    this.getCarsList();
+                    if (response.data.message === null) {
+                        alert("all Columns are added")
+                    } else {
+                        alert("Don't! added " + response.data.message + " Columns")
+                    }
                 })
                 .catch(function (error) {
-                    console.log(1111);
+                    console.log("Error 500");
                 });
         },
     },
 
     created() {
-        this.carsGet();
+        this.getCarsList();
     }
 }
 </script>

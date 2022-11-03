@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Imports;
+
 use App\Models\Car;
 use Illuminate\Support\Facades\Session;
 use Maatwebsite\Excel\Concerns\ToModel;
@@ -8,9 +9,11 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 
 class ImportCars implements ToModel, WithValidation
 {
-    public $failed = [];
-
-    public function model(array $row)
+    /**
+     * @param array $row
+     * @return Car
+     */
+    public function model(array $row): Car
     {
         return new Car (
             [
@@ -23,9 +26,12 @@ class ImportCars implements ToModel, WithValidation
         );
     }
 
+    /**
+     * @return \Closure[]
+     */
     public function rules(): array
     {
-        $message = function($attribute, $value) {
+        $message = function ($attribute, $value) {
             if (!$value) {
                 if (Session::has('error')) {
                     $error = Session::get('error');
