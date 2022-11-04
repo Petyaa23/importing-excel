@@ -72,6 +72,7 @@
 
 export default {
     name: "Dashboard",
+    inheritAttrs:false,
     data() {
         return {
             excelFile: {},
